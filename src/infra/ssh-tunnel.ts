@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import net from "node:net";
+import { findWindowsSshPath } from "../platform/windows/ssh.js";
 import { isErrno } from "./errors.js";
 import { ensurePortAvailable } from "./ports.js";
 
@@ -116,14 +117,24 @@ export async function startSshPortForward(opts: {
   try {
     await ensurePortAvailable(localPort);
   } catch (err) {
-    if (isErrno(err) && err.code === "EADDRINUSE") {
+    if (err instanceof Error && isErrno(err) && err.code === "EADDRINUSE") {
       localPort = await pickEphemeralPort();
     } else {
       throw err;
     }
   }
 
+  // Windows: Find OpenSSH
+  const windowsSsh = await findWindowsSshPath();
+  if (!windowsSsh) {
+    throw new Error(
+      "SSH not available on Windows. Please install OpenSSH (available in Windows 10+).",
+    );
+  }
+  const sshCmd = windowsSsh;
+
   const userHost = parsed.user ? `${parsed.user}@${parsed.host}` : parsed.host;
+
   const args = [
     "-N",
     "-L",
@@ -145,16 +156,21 @@ export async function startSshPortForward(opts: {
     "-o",
     "ServerAliveCountMax=3",
   ];
+
   if (opts.identity?.trim()) {
     args.push("-i", opts.identity.trim());
   }
+
   // Security: Use '--' to prevent userHost from being interpreted as an option
   args.push("--", userHost);
 
   const stderr: string[] = [];
-  const child = spawn("/usr/bin/ssh", args, {
-    stdio: ["ignore", "ignore", "pipe"],
-  });
+  const spawnOptions: import("node:child_process").SpawnOptions = {
+    stdio: ["ignore", "ignore", "pipe"] as const,
+    windowsHide: true,
+  };
+
+  const child = spawn(sshCmd, args, spawnOptions);
   child.stderr?.setEncoding("utf8");
   child.stderr?.on("data", (chunk) => {
     const lines = String(chunk)
@@ -168,20 +184,23 @@ export async function startSshPortForward(opts: {
     if (child.killed) {
       return;
     }
-    child.kill("SIGTERM");
-    await new Promise<void>((resolve) => {
-      const t = setTimeout(() => {
-        try {
-          child.kill("SIGKILL");
-        } finally {
+    try {
+      child.kill("SIGTERM");
+      await new Promise<void>((resolve) => {
+        const timeout = setTimeout(() => {
+          if (!child.killed) {
+            child.kill("SIGKILL");
+          }
           resolve();
-        }
-      }, 1500);
-      child.once("exit", () => {
-        clearTimeout(t);
-        resolve();
+        }, 5000);
+        child.on("exit", () => {
+          clearTimeout(timeout);
+          resolve();
+        });
       });
-    });
+    } catch {
+      // ignore
+    }
   };
 
   try {
@@ -203,7 +222,7 @@ export async function startSshPortForward(opts: {
     parsedTarget: parsed,
     localPort,
     remotePort: opts.remotePort,
-    pid: typeof child.pid === "number" ? child.pid : null,
+    pid: child.pid ?? null,
     stderr,
     stop,
   };

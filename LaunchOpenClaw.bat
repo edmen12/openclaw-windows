@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal EnableDelayedExpansion
 
 :: Title and styling
 title OpenClaw Launcher
@@ -14,10 +14,16 @@ echo.
 :: Check for uv
 where uv >nul 2>nul
 if %errorlevel% neq 0 (
-    echo [ERROR] 'uv' tool is not found. Please install it first:
-    echo pip install uv
-    pause
-    exit /b 1
+    echo [ERROR] 'uv' tool is not found. Using Python directly instead.
+    echo.
+    echo [INFO] Launching Application with Python...
+    python scripts\launcher.py
+    if %errorlevel% neq 0 (
+        echo.
+        echo [WARNING] Python launcher failed. Starting gateway directly...
+        start "" node dist\entry.js gateway run --bind loopback --port 18789 --force
+    )
+    exit /b 0
 )
 
 :: Create venv if not exists
@@ -34,5 +40,10 @@ uv pip install -r requirements-launcher.txt >nul 2>&1
 echo [INFO] Launching Application...
 uv run python scripts/launcher.py
 
-pause
+if %errorlevel% neq 0 (
+    echo.
+    echo [WARNING] Python launcher failed. Starting gateway directly...
+    start "" node dist\entry.js gateway run --bind loopback --port 18789 --force
+)
+
 endlocal

@@ -1,9 +1,6 @@
 import type { OpenClawConfig } from "../config/config.js";
 import type { ModelDefinitionConfig } from "../config/types.models.js";
-import {
-  DEFAULT_COPILOT_API_BASE_URL,
-  resolveCopilotApiToken,
-} from "../providers/github-copilot-token.js";
+import * as GitHubCopilot from "../providers/github-copilot-token.js";
 import { ensureAuthProfileStore, listProfilesForProvider } from "./auth-profiles.js";
 import { discoverBedrockModels } from "./bedrock-discovery.js";
 import {
@@ -654,16 +651,16 @@ export async function resolveImplicitCopilotProvider(params: {
     }
   }
 
-  let baseUrl = DEFAULT_COPILOT_API_BASE_URL;
+  let baseUrl = GitHubCopilot.DEFAULT_COPILOT_API_BASE_URL;
   if (selectedGithubToken) {
     try {
-      const token = await resolveCopilotApiToken({
+      const token = await GitHubCopilot.resolveCopilotApiToken({
         githubToken: selectedGithubToken,
         env,
       });
       baseUrl = token.baseUrl;
     } catch {
-      baseUrl = DEFAULT_COPILOT_API_BASE_URL;
+      baseUrl = GitHubCopilot.DEFAULT_COPILOT_API_BASE_URL;
     }
   }
 

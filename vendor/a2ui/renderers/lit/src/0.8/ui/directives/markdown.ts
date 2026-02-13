@@ -34,7 +34,8 @@ class MarkdownDirective extends Directive {
           const iframe = document.createElement("iframe");
           iframe.classList.add("html-view");
           iframe.srcdoc = str;
-          iframe.sandbox = "";
+          // Workaround: sandbox is read-only in TS types, use setAttribute with any cast
+          (iframe as any).setAttribute("sandbox", "");
           return iframe.innerHTML;
         }
 

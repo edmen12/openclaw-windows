@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
-import { promisify } from "node:util";
 import path from "node:path";
+import { promisify } from "node:util";
 export type DaemonServiceConfig = {
   cwd: string;
 };
@@ -18,7 +18,7 @@ async function runSchtasks(args: string[]): Promise<string> {
     // schtasks writes errors to stderr, but node throws.
     // If it's "system cannot find the file specified" it means task doesn't exist.
     if (message.includes("The system cannot find the file specified")) {
-      throw new Error("Task not found");
+      throw new Error("Task not found", { cause: err });
     }
     throw err;
   }
@@ -29,15 +29,19 @@ export async function installWindowsService(config: DaemonServiceConfig): Promis
   // This ensures the Tray Icon appears and we have a unified process.
   // The VBS script handles the silent launch of the Python logic.
   const scriptPath = path.resolve(config.cwd, "LaunchOpenClaw.vbs");
-  
+
   // Use wscript to run the VBS
   const args = [
     "/Create",
-    "/TN", SERVICE_NAME,
-    "/TR", `wscript.exe "${scriptPath}"`, 
-    "/SC", "ONLOGON", // Critical: Must run on logon to interact with desktop (Tray Icon)
-    "/F", 
-    "/RL", "HIGHEST"
+    "/TN",
+    SERVICE_NAME,
+    "/TR",
+    `wscript.exe "${scriptPath}"`,
+    "/SC",
+    "ONLOGON", // Critical: Must run on logon to interact with desktop (Tray Icon)
+    "/F",
+    "/RL",
+    "HIGHEST",
   ];
 
   await runSchtasks(args);
@@ -48,7 +52,7 @@ export async function uninstallWindowsService(): Promise<void> {
   try {
     await runSchtasks(["/Delete", "/TN", SERVICE_NAME, "/F"]);
     console.log(`Windows Task "${SERVICE_NAME}" deleted.`);
-  } catch (e) {
+  } catch {
     console.log(`Task "${SERVICE_NAME}" not found or already deleted.`);
   }
 }
@@ -62,7 +66,7 @@ export async function stopWindowsService(): Promise<void> {
   try {
     await runSchtasks(["/End", "/TN", SERVICE_NAME]);
     console.log(`Windows Task "${SERVICE_NAME}" stopped.`);
-  } catch (e) {
+  } catch {
     // Ignore if not running
   }
 }

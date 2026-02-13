@@ -141,9 +141,9 @@ def start_openclaw(icon=None):
         print("Starting OpenClaw...")
         log_quit("Starting gateway process...")
 
-        # Use shell=True for pnpm on Windows to resolve properly
+        # Use shell=False on Windows to avoid creating cmd window
         try:
-            log_quit("Using shell=True for subprocess")
+            log_quit("Using shell=False to avoid console window")
             # Using creationflags to suppress console window on Windows
             creationflags = (
                 subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
@@ -160,9 +160,15 @@ def start_openclaw(icon=None):
             log_file = open("launcher_debug.log", "a")  # Append to log
             log_file.write(f"\n--- Starting Gateway at {time.ctime()} ---\n")
 
+            # Convert string CMD to list for shell=False
+            if isinstance(CMD, str):
+                cmd_list = CMD.split()
+            else:
+                cmd_list = CMD
+
             process = subprocess.Popen(
-                CMD,
-                shell=True,
+                cmd_list,
+                shell=False,  # shell=False to avoid console window
                 creationflags=creationflags,
                 cwd=os.getcwd(),
                 env=env,
@@ -481,24 +487,50 @@ def open_dashboard(icon, item):
 
 def create_tray_menu():
     log_quit("create_tray_menu called, creating tray icon...")
-    # Create menu
-    menu = pystray.Menu(
-        item("OpenClaw Running", lambda: None, enabled=False),
-        pystray.Menu.SEPARATOR,
-        item("Dashboard", open_dashboard),
-        pystray.Menu.SEPARATOR,
-        item("Restart", restart_openclaw),
-        item("Stop", lambda icon, item: stop_openclaw(icon)),
-        item("Start", lambda icon, item: start_openclaw(icon)),
-        pystray.Menu.SEPARATOR,
-        item("Exit", quit_app),
-    )
+    try:
+        # Create menu
+        menu = pystray.Menu(
+            item("OpenClaw Running", lambda: None, enabled=False),
+            pystray.Menu.SEPARATOR,
+            item("Dashboard", open_dashboard),
+            pystray.Menu.SEPARATOR,
+            item("Restart", restart_openclaw),
+            item("Stop", lambda icon, item: stop_openclaw(icon)),
+            item("Start", lambda icon, item: start_openclaw(icon)),
+            pystray.Menu.SEPARATOR,
+            item("Exit", quit_app),
+        )
 
-    global tray_icon
-    log_quit("Creating pystray Icon object...")
-    tray_icon = pystray.Icon("OpenClaw", create_icon(), "OpenClaw Agent", menu)
-    log_quit("Starting tray icon.run()...")
-    tray_icon.run()
+        global tray_icon
+        log_quit("Creating pystray Icon object...")
+        icon_image = create_icon()
+        tray_icon = pystray.Icon("OpenClaw", icon_image, "OpenClaw Agent", menu)
+
+        log_quit("Starting tray icon.run()...")
+        log_quit("Tray icon will keep the process running...")
+
+        # This blocks until user clicks Exit
+        tray_icon.run()
+
+        log_quit("Tray icon.run() finished (user clicked Exit)")
+    except Exception as e:
+        log_quit(f"create_tray_menu error: {e}")
+        import traceback
+
+        log_quit(f"Traceback: {traceback.format_exc()}")
+        # Try to start gateway at least
+        start_openclaw()
+        # Keep running in foreground
+        print(
+            "Tray icon failed to start. Gateway running without tray. Press Ctrl+C to exit or close this window."
+        )
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            log_quit("KeyboardInterrupt received, exiting")
+            stop_openclaw()
+            os._exit(0)
 
 
 def start_tray():

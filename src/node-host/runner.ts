@@ -156,7 +156,11 @@ type NodeInvokeRequestPayload = {
 
 const OUTPUT_CAP = 200_000;
 const OUTPUT_EVENT_TAIL = 20_000;
-const DEFAULT_NODE_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+const DEFAULT_NODE_PATH_WINDOWS = "";
+const DEFAULT_NODE_PATH_UNIX = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+function getDefaultNodePath(): string {
+  return process.platform === "win32" ? DEFAULT_NODE_PATH_WINDOWS : DEFAULT_NODE_PATH_UNIX;
+}
 const BROWSER_PROXY_MAX_FILE_BYTES = 10 * 1024 * 1024;
 
 const execHostEnforced = process.env.OPENCLAW_NODE_EXEC_HOST?.trim().toLowerCase() === "app";
@@ -211,7 +215,7 @@ function sanitizeEnv(
     return undefined;
   }
   const merged = { ...process.env } as Record<string, string>;
-  const basePath = process.env.PATH ?? DEFAULT_NODE_PATH;
+  const basePath = process.env.PATH ?? getDefaultNodePath();
   for (const [rawKey, value] of Object.entries(overrides)) {
     const key = rawKey.trim();
     if (!key) {
@@ -464,7 +468,7 @@ function resolveEnvPath(env?: Record<string, string>): string[] {
     (env as Record<string, string>)?.Path ??
     process.env.PATH ??
     process.env.Path ??
-    DEFAULT_NODE_PATH;
+    getDefaultNodePath();
   return raw.split(path.delimiter).filter(Boolean);
 }
 
@@ -474,8 +478,9 @@ function ensureNodePathEnv(): string {
   if (current.trim()) {
     return current;
   }
-  process.env.PATH = DEFAULT_NODE_PATH;
-  return DEFAULT_NODE_PATH;
+  const pathSetting = getDefaultNodePath();
+  process.env.PATH = pathSetting;
+  return pathSetting;
 }
 
 function resolveExecutable(bin: string, env?: Record<string, string>) {
