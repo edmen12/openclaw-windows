@@ -12,12 +12,7 @@ import { colorize, isRich, theme } from "../../terminal/theme.js";
 import { formatTokenCount, formatUsd } from "../../utils/usage-format.js";
 import { runCommandWithRuntime } from "../cli-utils.js";
 import {
-  runDaemonInstall,
-  runDaemonRestart,
-  runDaemonStart,
   runDaemonStatus,
-  runDaemonStop,
-  runDaemonUninstall,
 } from "../daemon-cli.js";
 import { withProgress } from "../progress.js";
 import { callGatewayCli, gatewayCallOpts } from "./call.js";
@@ -153,49 +148,8 @@ export function registerGatewayCli(program: Command) {
       });
     });
 
-  gateway
-    .command("install")
-    .description("Install the Gateway service (launchd/systemd/schtasks)")
-    .option("--port <port>", "Gateway port")
-    .option("--runtime <runtime>", "Daemon runtime (node|bun). Default: node")
-    .option("--token <token>", "Gateway token (token auth)")
-    .option("--force", "Reinstall/overwrite if already installed", false)
-    .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonInstall(opts);
-    });
-
-  gateway
-    .command("uninstall")
-    .description("Uninstall the Gateway service (launchd/systemd/schtasks)")
-    .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonUninstall(opts);
-    });
-
-  gateway
-    .command("start")
-    .description("Start the Gateway service (launchd/systemd/schtasks)")
-    .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonStart(opts);
-    });
-
-  gateway
-    .command("stop")
-    .description("Stop the Gateway service (launchd/systemd/schtasks)")
-    .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonStop(opts);
-    });
-
-  gateway
-    .command("restart")
-    .description("Restart the Gateway service (launchd/systemd/schtasks)")
-    .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonRestart(opts);
-    });
+  // Windows-only: Service management commands removed
+  // Use: openclaw gateway run (foreground) or Windows Task Scheduler
 
   gatewayCallOpts(
     gateway
