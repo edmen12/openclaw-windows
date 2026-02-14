@@ -78,9 +78,11 @@ export async function startOpenCodeSession(
   const args = workspace ? [workspace] : [];
 
   // Spawn process
+  // On Windows, spawn opencode.cmd requires shell: true
   const childProcess = spawn(opencodeExe, args, {
     stdio: ["pipe", "pipe", "pipe"],
     cwd: process.cwd(),
+    shell: os.platform() === "win32",
   });
 
   // Handle process errors
