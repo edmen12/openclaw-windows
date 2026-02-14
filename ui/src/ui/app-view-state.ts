@@ -73,6 +73,9 @@ export type AppViewState = {
   sidebarError: string | null;
   splitRatio: number;
   scrollToBottom: (opts?: { smooth?: boolean }) => void;
+  sessionContextTokens: number | null;
+  sessionContextTokensMax: number | null;
+  sessionUsedPercent: number | null;
   devicesLoading: boolean;
   devicesError: string | null;
   devicesList: DevicePairingList | null;

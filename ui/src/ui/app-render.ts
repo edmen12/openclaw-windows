@@ -1092,6 +1092,9 @@ export function renderApp(state: AppViewState) {
                 disabledReason: chatDisabledReason,
                 error: state.lastError,
                 sessions: state.sessionsResult,
+                sessionContextTokens: state.sessionContextTokens,
+                sessionContextTokensMax: state.sessionContextTokensMax,
+                sessionUsedPercent: state.sessionUsedPercent,
                 focusMode: chatFocus,
                 onRefresh: () => {
                   state.resetToolStream();

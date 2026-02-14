@@ -143,6 +143,10 @@ export class OpenClawApp extends LitElement {
   @state() sidebarError: string | null = null;
   @state() splitRatio = this.settings.splitRatio;
 
+  @state() sessionContextTokens: number | null = null;
+  @state() sessionContextTokensMax: number | null = null;
+  @state() sessionUsedPercent: number | null = null;
+
   @state() nodesLoading = false;
   @state() nodes: Array<Record<string, unknown>> = [];
   @state() devicesLoading = false;
@@ -364,6 +368,9 @@ export class OpenClawApp extends LitElement {
 
   protected updated(changed: Map<PropertyKey, unknown>) {
     handleUpdated(this as unknown as Parameters<typeof handleUpdated>[0], changed);
+    if (changed.has("sessionsResult") || changed.has("sessionKey")) {
+      this.updateSessionContextTokens();
+    }
   }
 
   connect() {
@@ -563,6 +570,31 @@ export class OpenClawApp extends LitElement {
     const newRatio = Math.max(0.4, Math.min(0.7, ratio));
     this.splitRatio = newRatio;
     this.applySettings({ ...this.settings, splitRatio: newRatio });
+  }
+
+  updateSessionContextTokens() {
+    if (!this.sessionKey || !this.sessionsResult) {
+      this.sessionContextTokens = null;
+      this.sessionContextTokensMax = null;
+      this.sessionUsedPercent = null;
+      return;
+    }
+    const session = this.sessionsResult.sessions.find((s) => s.key === this.sessionKey);
+    if (!session) {
+      this.sessionContextTokens = null;
+      this.sessionContextTokensMax = null;
+      this.sessionUsedPercent = null;
+      return;
+    }
+    const contextTokens = session.contextTokens ?? 0;
+    const contextTokensMax = this.sessionsResult.defaults.contextTokens ?? null;
+    let usedPercent: number | null = null;
+    if (contextTokensMax !== null && contextTokensMax > 0) {
+      usedPercent = Math.round((contextTokens / contextTokensMax) * 100);
+    }
+    this.sessionContextTokens = contextTokens;
+    this.sessionContextTokensMax = contextTokensMax;
+    this.sessionUsedPercent = usedPercent;
   }
 
   render() {

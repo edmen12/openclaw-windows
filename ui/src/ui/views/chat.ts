@@ -42,6 +42,9 @@ export type ChatProps = {
   disabledReason: string | null;
   error: string | null;
   sessions: SessionsListResult | null;
+  sessionContextTokens: number | null;
+  sessionContextTokensMax: number | null;
+  sessionUsedPercent: number | null;
   // Focus mode
   focusMode: boolean;
   // Sidebar state
@@ -105,6 +108,20 @@ function renderCompactionIndicator(status: CompactionIndicatorStatus | null | un
   }
 
   return nothing;
+}
+
+function formatNumber(num: number): string {
+  return num.toLocaleString();
+}
+
+function getSeverityClass(percent: number): string {
+  if (percent >= 90) {
+    return "critical";
+  }
+  if (percent >= 75) {
+    return "warning";
+  }
+  return "normal";
 }
 
 function generateAttachmentId(): string {
@@ -353,6 +370,24 @@ export function renderChat(props: ChatProps) {
       }
 
       ${renderCompactionIndicator(props.compactionStatus)}
+
+      ${
+        props.sessionContextTokens !== null &&
+        props.sessionContextTokensMax !== null &&
+        props.sessionUsedPercent !== null
+          ? html`
+              <div class="chat-tokens">
+                <span class="chat-tokens__label">Context tokens:</span>
+                <span class="chat-tokens__value">${formatNumber(props.sessionContextTokens)}</span>
+                <span class="chat-tokens__separator">/</span>
+                <span class="chat-tokens__value">${formatNumber(props.sessionContextTokensMax)}</span>
+                <span class="chat-tokens__percent chat-tokens__percent--${getSeverityClass(props.sessionUsedPercent)}">
+                  (${props.sessionUsedPercent}%)
+                </span>
+              </div>
+            `
+          : nothing
+      }
 
       ${
         props.showNewMessages
