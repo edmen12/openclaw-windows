@@ -1,8 +1,11 @@
 export { runDaemonInstall } from "./install.js";
-export {
-  runDaemonRestart,
-  runDaemonStart,
-  runDaemonStop,
-  runDaemonUninstall,
-} from "./lifecycle.js";
+
+// Windows: lifecycle.js not supported (Linux/macOS system services)
+// export {
+//   runDaemonRestart,
+//   runDaemonStart,
+//   runDaemonStop,
+//   runDaemonUninstall,
+// } from "./lifecycle.js";
+
 export { runDaemonStatus } from "./status.js";

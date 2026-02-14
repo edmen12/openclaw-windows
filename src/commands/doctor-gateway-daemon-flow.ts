@@ -8,11 +8,13 @@ import {
   resolveNodeLaunchAgentLabel,
 } from "../daemon/constants.js";
 import { readLastGatewayErrorLine } from "../daemon/diagnostics.js";
-import {
-  isLaunchAgentListed,
-  isLaunchAgentLoaded,
-  launchAgentPlistExists,
-  repairLaunchAgentBootstrap,
+// Windows-only: LaunchAgent functions removed
+// import {
+//   isLaunchAgentListed,
+//   isLaunchAgentLoaded,
+//   launchAgentPlistExists,
+//   repairLaunchAgentBootstrap,
+// } from "../daemon/launchd.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { formatPortDiagnostics, inspectPortUsage } from "../infra/ports.js";
 import { note } from "../terminal/note.js";

@@ -306,10 +306,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       if (typeof resolvedConfig !== "object" || resolvedConfig === null) {
         return {};
       }
-      const preValidationDuplicates = findDuplicateAgentDirs(resolvedConfig as OpenClawConfig, {
-        env: deps.env,
-        homedir: deps.homedir,
-      });
+      const preValidationDuplicates = findDuplicateAgentDirs(resolvedConfig as OpenClawConfig);
       if (preValidationDuplicates.length > 0) {
         throw new DuplicateAgentDirError(preValidationDuplicates);
       }
@@ -345,10 +342,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       );
       normalizeConfigPaths(cfg);
 
-      const duplicates = findDuplicateAgentDirs(cfg, {
-        env: deps.env,
-        homedir: deps.homedir,
-      });
+      const duplicates = findDuplicateAgentDirs(cfg);
       if (duplicates.length > 0) {
         throw new DuplicateAgentDirError(duplicates);
       }

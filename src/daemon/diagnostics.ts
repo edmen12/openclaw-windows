@@ -1,5 +1,15 @@
 import fs from "node:fs/promises";
-import { resolveGatewayLogPaths } from "./launchd.js";
+import path from "node:path";
+import os from "node:os";
+
+// Windows-only implementation: resolve gateway log paths
+export function resolveGatewayLogPaths(env?: NodeJS.ProcessEnv): { stdoutPath: string; stderrPath: string } {
+  const dataDir = env.OPENCLAW_DATA_DIR ?? path.join(os.homedir(), ".openclaw");
+  return {
+    stdoutPath: path.join(dataDir, "logs", "gateway.stdout.log"),
+    stderrPath: path.join(dataDir, "logs", "gateway.stderr.log"),
+  };
+}
 
 const GATEWAY_LOG_ERROR_PATTERNS = [
   /refusing to bind gateway/i,

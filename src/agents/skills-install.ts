@@ -4,7 +4,8 @@ import path from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import type { OpenClawConfig } from "../config/config.js";
-import { resolveBrewExecutable } from "../infra/brew.js";
+// Windows-only: Homebrew not supported
+// import { resolveBrewExecutable } from "../infra/brew.js";
 import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { scanDirectoryWithSummary } from "../security/skill-scanner.js";
@@ -166,10 +167,14 @@ function buildInstallCommand(
 } {
   switch (spec.kind) {
     case "brew": {
+      // Windows-only: Homebrew not supported
+      return { argv: null, error: "Homebrew not supported on Windows-only fork" };
+      /*
       if (!spec.formula) {
         return { argv: null, error: "missing brew formula" };
       }
       return { argv: ["brew", "install", spec.formula] };
+      */
     }
     case "node": {
       if (!spec.package) {
@@ -360,38 +365,11 @@ async function installDownloadSpec(params: {
   };
 }
 
-async function resolveBrewBinDir(timeoutMs: number, brewExe?: string): Promise<string | undefined> {
-  const exe = brewExe ?? (hasBinary("brew") ? "brew" : resolveBrewExecutable());
-  if (!exe) {
-    return undefined;
-  }
-
-  const prefixResult = await runCommandWithTimeout([exe, "--prefix"], {
-    timeoutMs: Math.min(timeoutMs, 30_000),
-  });
-  if (prefixResult.code === 0) {
-    const prefix = prefixResult.stdout.trim();
-    if (prefix) {
-      return path.join(prefix, "bin");
-    }
-  }
-
-  const envPrefix = process.env.HOMEBREW_PREFIX?.trim();
-  if (envPrefix) {
-    return path.join(envPrefix, "bin");
-  }
-
-  for (const candidate of ["/opt/homebrew/bin", "/usr/local/bin"]) {
-    try {
-      if (fs.existsSync(candidate)) {
-        return candidate;
-      }
-    } catch {
-      // ignore
-    }
-  }
+async function resolveBrewBinDir(_timeoutMs: number, _brewExe?: string): Promise<string | undefined> {
+  // Windows-only: Homebrew not supported
   return undefined;
 }
+
 
 export async function installSkill(params: SkillInstallRequest): Promise<SkillInstallResult> {
   const timeoutMs = Math.min(Math.max(params.timeoutMs ?? 300_000, 1_000), 900_000);
@@ -442,12 +420,13 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
     );
   }
 
-  const brewExe = hasBinary("brew") ? "brew" : resolveBrewExecutable();
-  if (spec.kind === "brew" && !brewExe) {
+  // Windows-only: Homebrew not supported
+  const brewExe = undefined;
+  if (spec.kind === "brew") {
     return withWarnings(
       {
         ok: false,
-        message: "brew not installed",
+        message: "Homebrew not supported on Windows-only fork",
         stdout: "",
         stderr: "",
         code: null,
@@ -498,9 +477,10 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
     );
   }
 
-  if (spec.kind === "brew" && brewExe && command.argv[0] === "brew") {
-    command.argv[0] = brewExe;
-  }
+  // Windows: brew not supported, but keeping this for type compatibility
+  // if (spec.kind === "brew" && brewExe && command.argv[0] === "brew") {
+  //   command.argv[0] = brewExe;
+  // }
 
   if (spec.kind === "go" && !hasBinary("go")) {
     if (brewExe) {

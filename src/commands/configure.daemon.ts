@@ -3,7 +3,9 @@ import { withProgress } from "../cli/progress.js";
 import { loadConfig } from "../config/config.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { note } from "../terminal/note.js";
-import { confirm, select } from "./configure.shared.js";
+// Windows: confirm not used after removing systemd logic
+// import { confirm, select } from "./configure.shared.js";
+import { select } from "./configure.shared.js";
 import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-install-helpers.js";
 import {
   DEFAULT_GATEWAY_DAEMON_RUNTIME,
@@ -11,17 +13,19 @@ import {
   type GatewayDaemonRuntime,
 } from "./daemon-runtime.js";
 import { guardCancel } from "./onboard-helpers.js";
-import { ensureSystemdUserLingerInteractive } from "./systemd-linger.js";
+// Windows: systemd-specific modules removed
+// import { ensureSystemdUserLingerInteractive } from "./systemd-linger.js";
 
 export async function maybeInstallDaemon(params: {
   runtime: RuntimeEnv;
   port: number;
   gatewayToken?: string;
   daemonRuntime?: GatewayDaemonRuntime;
-}) {
+  }) {
   const service = resolveGatewayService();
   const loaded = await service.isLoaded({ env: process.env });
-  let shouldCheckLinger = false;
+  // Windows: systemd lingering not needed
+  // let shouldCheckLinger = false;
   let shouldInstall = true;
   let daemonRuntime = params.daemonRuntime ?? DEFAULT_GATEWAY_DAEMON_RUNTIME;
   if (loaded) {
@@ -48,7 +52,8 @@ export async function maybeInstallDaemon(params: {
           progress.setLabel("Gateway service restarted.");
         },
       );
-      shouldCheckLinger = true;
+      // Windows: systemd lingering not needed
+      // shouldCheckLinger = true;
       shouldInstall = false;
     }
     if (action === "skip") {
@@ -118,19 +123,21 @@ export async function maybeInstallDaemon(params: {
       note(gatewayInstallErrorHint(), "Gateway");
       return;
     }
-    shouldCheckLinger = true;
+    // Windows: systemd lingering not needed
+    // shouldCheckLinger = true;
   }
 
-  if (shouldCheckLinger) {
-    await ensureSystemdUserLingerInteractive({
-      runtime: params.runtime,
-      prompter: {
-        confirm: async (p) => guardCancel(await confirm(p), params.runtime),
-        note,
-      },
-      reason:
-        "Linux installs use a systemd user service. Without lingering, systemd stops the user session on logout/idle and kills the Gateway.",
-      requireConfirm: true,
-    });
-  }
+  // Windows: systemd lingering not needed
+  // if (shouldCheckLinger) {
+  //   await ensureSystemdUserLingerInteractive({
+  //     runtime: params.runtime,
+  //     prompter: {
+  //       confirm: async (p) => guardCancel(await confirm(p), params.runtime),
+  //       note,
+  //     },
+  //     reason:
+  //       "Linux installs use a systemd user service. Without lingering, systemd stops the user session on logout/idle and kills the Gateway.",
+  //     requireConfirm: true,
+  //   });
+  // }
 }

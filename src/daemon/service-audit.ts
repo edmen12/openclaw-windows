@@ -1,13 +1,19 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolveLaunchAgentPlistPath } from "./launchd.js";
+// Windows-only: LaunchAgent path
+function resolveLaunchAgentPlistPath(_env?: Record<string, string | undefined>): string {
+  throw new Error("LaunchAgent not supported on Windows-only fork");
+}
 import {
   isSystemNodePath,
   isVersionManagedNodePath,
   resolveSystemNodePath,
 } from "./runtime-paths.js";
 import { getMinimalServicePathPartsFromEnv } from "./service-env.js";
-import { resolveSystemdUserUnitPath } from "./systemd.js";
+// Windows-only: Systemd not supported
+function resolveSystemdUserUnitPath(_env?: Record<string, string | undefined>): string {
+  throw new Error("systemd not supported on Windows-only fork");
+}
 
 export type GatewayServiceCommand = {
   programArguments: string[];

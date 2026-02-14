@@ -1,9 +1,15 @@
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { loginChutes } from "./chutes-oauth.js";
-import { isRemoteEnvironment } from "./oauth-env.js";
+// Windows: oauth-env.js removed (VPS-specific environment detection)
+// import { isRemoteEnvironment } from "./oauth-env.js";
 import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
 import { applyAuthProfileConfig, writeOAuthCredentials } from "./onboard-auth.js";
 import { openUrl } from "./onboard-helpers.js";
+
+// Windows: simple environment detection (always local)
+function isRemoteEnvironment(): boolean {
+  return false;
+}
 
 export async function applyAuthChoiceOAuth(
   params: ApplyAuthChoiceParams,

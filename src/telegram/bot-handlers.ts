@@ -609,7 +609,8 @@ export const registerTelegramHandlers = ({
       if (approvalAction === "approve_once" || approvalAction === "approve_always" || approvalAction === "reject") {
         const decision = approvalAction === "approve_once" ? "allow-once" : approvalAction === "approve_always" ? "allow-always" : "deny";
         try {
-          const manager = (ctx.bot as any).execApprovalManager as { resolve: (id: string, decision: string, resolvedBy?: string | null) => boolean } | undefined;
+          // Windows: ctx.bot type issue - use unknown to bypass type check
+          const manager = (ctx as unknown as { bot?: { execApprovalManager?: { resolve: (id: string, decision: string, resolvedBy?: string | null) => boolean } | undefined } }).bot?.execApprovalManager;
           if (manager && approvalId) {
             const resolvedBy = `${callback.from?.first_name ?? "User"} (TG:${callback.from?.id})`;
             const ok = manager.resolve(approvalId, decision, resolvedBy);

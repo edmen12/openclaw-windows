@@ -8,7 +8,10 @@ import {
   validateApiKeyInput,
 } from "./auth-choice.api-key.js";
 import { applyDefaultModelChoice } from "./auth-choice.default-model.js";
-import { isRemoteEnvironment } from "./oauth-env.js";
+// Windows-only: OAuth environment detection simplified (always local)
+function isRemoteEnvironment(): boolean {
+  return false;
+}
 import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
 import { applyAuthProfileConfig, writeOAuthCredentials } from "./onboard-auth.js";
 import { openUrl } from "./onboard-helpers.js";

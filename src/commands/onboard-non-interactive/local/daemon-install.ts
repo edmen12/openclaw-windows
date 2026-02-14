@@ -2,10 +2,16 @@ import type { OpenClawConfig } from "../../../config/config.js";
 import type { RuntimeEnv } from "../../../runtime.js";
 import type { OnboardOptions } from "../../onboard-types.js";
 import { resolveGatewayService } from "../../../daemon/service.js";
-import { isSystemdUserServiceAvailable } from "../../../daemon/systemd.js";
+// Windows-only: Systemd not supported
+async function isSystemdUserServiceAvailable(): Promise<boolean> {
+  return false;
+}
 import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "../../daemon-install-helpers.js";
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME, isGatewayDaemonRuntime } from "../../daemon-runtime.js";
-import { ensureSystemdUserLingerNonInteractive } from "../../systemd-linger.js";
+// Windows-only: Systemd linger not supported
+async function ensureSystemdUserLingerNonInteractive(_runtime: RuntimeEnv): Promise<void> {
+  // No-op on Windows
+}
 
 export async function installGatewayDaemonNonInteractive(params: {
   nextConfig: OpenClawConfig;

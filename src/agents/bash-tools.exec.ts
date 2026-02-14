@@ -989,10 +989,7 @@ export function createExecTool(
         : mergedEnv;
 
       if (!sandbox && host === "gateway" && !params.env?.PATH) {
-        const shellPath = getShellPathFromLoginShell({
-          env: process.env,
-          timeoutMs: resolveShellEnvFallbackTimeoutMs(process.env),
-        });
+        const shellPath = getShellPathFromLoginShell();
         applyShellPath(env, shellPath);
       }
       applyPathPrepend(env, defaultPathPrepend);

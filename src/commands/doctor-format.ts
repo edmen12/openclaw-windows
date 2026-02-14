@@ -5,10 +5,15 @@ import {
   resolveGatewaySystemdServiceName,
   resolveGatewayWindowsTaskName,
 } from "../daemon/constants.js";
-import {
-  isSystemdUnavailableDetail,
-} from "../daemon/systemd-hints.js";
+// Windows-only: Systemd not supported
+// import {
+//   isSystemdUnavailableDetail,
+// } from "../daemon/systemd-hints.js";
 import { getResolvedLoggerSettings } from "../logging.js";
+
+function isSystemdUnavailableDetail(_detail?: string): boolean {
+  return false;
+}
 
 type RuntimeHintOptions = {
   platform?: NodeJS.Platform;
