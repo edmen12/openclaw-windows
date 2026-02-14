@@ -1,0 +1,115 @@
+{
+  "built-in": {
+    "label": "内置技能",
+    "emoji": "📦",
+    "description": "只需配置即可使用的技能，无需额外安装",
+    "skills": [
+      "canvas",
+      "coding-agent",
+      "discord",
+      "daily-briefing",
+      "email-fetch",
+      "github",
+      "healthcheck",
+      "model-usage",
+      "notion",
+      "openclaw-repo-monitor",
+      "opencode-coder",
+      "session-logs",
+      "skill-creator",
+      "slack",
+      "summarize",
+      "voice-call"
+    ]
+  },
+  "windows": {
+    "label": "Windows 系统管理",
+    "emoji": "🖥️",
+    "description": "Windows 系统监控和管理",
+    "skills": [
+      "windows-clipboard",
+      "windows-eventlog",
+      "windows-firewall",
+      "windows-office",
+      "windows-performance",
+      "windows-registry",
+      "windows-service",
+      "windows-task",
+      "windows-users"
+    ]
+  },
+  "communication": {
+    "label": "通讯和社交",
+    "emoji": "📱",
+    "description": "社交平台和通讯工具",
+    "skills": ["bluebubbles", "bird", "wacli"]
+  },
+  "search-ai": {
+    "label": "搜索和 AI",
+    "emoji": "🔍",
+    "description": "需要 API Key 的 AI 和搜索服务",
+    "skills": ["gemini", "serpapi-search", "serper-search", "tavily-search"]
+  },
+  "media": {
+    "label": "媒体和音频",
+    "emoji": "🎵",
+    "description": "音频、视频、图像处理工具",
+    "skills": [
+      "gifgrep",
+      "openai-image-gen",
+      "openai-whisper",
+      "qwen3-tts-local",
+      "songsee",
+      "spotify-player",
+      "video-frames",
+      "whisper-large-v3-turbo"
+    ]
+  },
+  "shopping": {
+    "label": "购物和订单",
+    "emoji": "🛒",
+    "description": "购物服务平台",
+    "skills": ["food-order"]
+  },
+  "finance": {
+    "label": "交易和金融",
+    "emoji": "💰",
+    "description": "加密货币、股票交易",
+    "skills": ["crypto-wallet-1.0.0", "mt5-control", "silicon-trader"]
+  },
+  "smart-home": {
+    "label": "智能家居和设备",
+    "emoji": "🏠",
+    "description": "硬件设备控制",
+    "skills": [
+      "blucli",
+      "eightctl",
+      "openhue",
+      "sonoscli",
+      "gog",
+      "mcporter",
+      "nano-banana-pro",
+      "nano-pdf",
+      "peekaboo",
+      "oracle",
+      "ordercli"
+    ]
+  },
+  "development": {
+    "label": "开发工具",
+    "emoji": "🔧",
+    "description": "开发辅助和工具",
+    "skills": [
+      "1password",
+      "clawhub",
+      "blogwatcher",
+      "humanizer-1.0.0",
+      "local-places",
+      "goplaces",
+      "minicpm-vision",
+      "obsidian",
+      "trello",
+      "weather"
+    ]
+  }
+}
