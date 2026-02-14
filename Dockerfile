@@ -1,3 +1,24 @@
+# ==============================================================================
+# ⚠️  WARNING: Docker builds are NOT SUPPORTED on this Windows-only fork
+# ==============================================================================
+#
+# This fork has been modified to remove macOS/Linux support. The container
+# builds defined in this Dockerfile are known to fail due to:
+#
+#   - Removed platform-specific code (launchd, systemd, Homebrew, etc.)
+#   - Windows-native build assumptions
+#   - Missing dependencies that only exist in upstream cross-platform builds
+#
+# If you need Docker support, use the upstream repository:
+#   https://github.com/openclaw/openclaw
+#
+# To restore Docker support:
+#   1. Merge changes from upstream
+#   2. Restore platform-specific code
+#   3. Enable the docker-release.yml workflow
+#
+# ==============================================================================
+
 FROM node:22-bookworm
 
 # Install Bun (required for build scripts)

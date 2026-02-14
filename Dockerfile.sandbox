@@ -1,3 +1,6 @@
+# ⚠️  WARNING: Docker builds are NOT SUPPORTED on this Windows-only fork
+# See main Dockerfile for details.
+
 FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
