@@ -1,5 +1,6 @@
 export const LEGACY_DAEMON_CLI_EXPORTS = [
-  "registerDaemonCli",
+  // Windows-only: registerNodeCli kept but simplified, lifecycle functions removed
+  "registerNodeCli",
   "runDaemonStatus",
 ] as const;
 
