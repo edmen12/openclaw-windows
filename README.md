@@ -1,4 +1,6 @@
-# 🦞 OpenClaw — Personal AI Assistant
+# 🦞 OpenClaw — Personal AI Assistant (Windows-Only Fork)
+
+> ⚠️ **Windows-Only Fork**: This is a maintained fork of [OpenClaw](https://github.com/openclaw/openclaw) with macOS/Linux support removed for a cleaner Windows-native experience. For cross-platform builds, use the [upstream repo](https://github.com/openclaw/openclaw).
 
 <p align="center">
     <picture>
@@ -12,22 +14,36 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/openclaw/openclaw/actions/workflows/ci.yml?branch=main"><img src="https://img.shields.io/github/actions/workflow/status/openclaw/openclaw/ci.yml?branch=main&style=for-the-badge" alt="CI status"></a>
-  <a href="https://github.com/openclaw/openclaw/releases"><img src="https://img.shields.io/github/v/release/openclaw/openclaw?include_prereleases&style=for-the-badge" alt="GitHub release"></a>
   <a href="https://discord.gg/clawd"><img src="https://img.shields.io/discord/1456350064065904867?label=Discord&logo=discord&logoColor=white&color=5865F2&style=for-the-badge" alt="Discord"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT License"></a>
+  <a href="https://github.com/edmen12/openclaw-windows"><img src="https://img.shields.io/badge/Fork-Windows--Only-green.svg?style=for-the-badge" alt="Windows-Only"></a>
 </p>
 
 **OpenClaw** is a _personal AI assistant_ you run on your own devices.
-It answers you on the channels you already use (WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, iMessage, Microsoft Teams, WebChat), plus extension channels like BlueBubbles, Matrix, Zalo, and Zalo Personal. It can speak and listen on macOS/iOS/Android, and can render a live Canvas you control. The Gateway is just the control plane — the product is the assistant.
+It answers you on the channels you already use (WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, Microsoft Teams, WebChat), plus extension channels like BlueBubbles, Matrix, Zalo, and Zalo Personal. It can speak and listen on Windows, and can render a live Canvas you control. The Gateway is just the control plane — the product is the assistant.
 
 If you want a personal, single-user assistant that feels local, fast, and always-on, this is it.
 
-[Website](https://openclaw.ai) · [Docs](https://docs.openclaw.ai) · [DeepWiki](https://deepwiki.com/openclaw/openclaw) · [Getting Started](https://docs.openclaw.ai/start/getting-started) · [Updating](https://docs.openclaw.ai/install/updating) · [Showcase](https://docs.openclaw.ai/start/showcase) · [FAQ](https://docs.openclaw.ai/start/faq) · [Wizard](https://docs.openclaw.ai/start/wizard) · [Nix](https://github.com/openclaw/nix-openclaw) · [Docker](https://docs.openclaw.ai/install/docker) · [Discord](https://discord.gg/clawd)
+[Website](https://openclaw.ai) · [Docs](https://docs.openclaw.ai) · [DeepWiki](https://deepwiki.com/openclaw/openclaw) · [Getting Started](https://docs.openclaw.ai/start/getting-started) · [Updating](https://docs.openclaw.ai/install/updating) · [Showcase](https://docs.openclaw.ai/start/showcase) · [FAQ](https://docs.openclaw.ai/start/faq) · [Wizard](https://docs.openclaw.ai/start/wizard) · [Docker](https://docs.openclaw.ai/install/docker) · [Discord](https://discord.gg/clawd) · [Upstream Repo](https://github.com/openclaw/openclaw)
+
+## Windows-Only Fork Notes
+
+This fork is optimized for Windows users:
+
+- ✅ **Removed**: macOS LaunchAgent, iOS app build, Linux systemd, Homebrew support
+- ✅ **Removed**: iMessage integration (Windows-only features retained)
+- ✅ **Simplified**: Windows-native build configuration
+- ✅ **Focused**: Windows-specific command-line tools and services
+- ⚠️ **Node host services**: Use `openclaw node run` (foreground) instead of service management
+- ⚠️ **Cross-platform**: Not supported — use upstream for macOS/Linux
+
+**Supported Platforms**: Windows 10/11 (native)
+
+**Supported Channels**: WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, Microsoft Teams, WebChat, BlueBubbles, Matrix, Zalo, Zalo Personal
 
 Preferred setup: run the onboarding wizard (`openclaw onboard`) in your terminal.
-The wizard guides you step by step through setting up the gateway, workspace, channels, and skills. The CLI wizard is the recommended path and works on **macOS, Linux, and Windows (via WSL2; strongly recommended)**.
-Works with npm, pnpm, or bun.
+The wizard guides you step by step through setting up the gateway, workspace, channels, and skills. The CLI wizard is the recommended path and works on **Windows (native)**.
+Works with npm or pnpm.
 New install? Start here: [Getting started](https://docs.openclaw.ai/start/getting-started)
 
 **Subscriptions (OAuth):**
@@ -44,65 +60,70 @@ Model note: while any model is supported, I strongly recommend **Anthropic Pro/M
 
 ## Install (recommended)
 
-Runtime: **Node ≥22**.
+**Runtime**: Node ≥22 (Windows 10/11).
 
 ```bash
 npm install -g openclaw@latest
 # or: pnpm add -g openclaw@latest
 
-openclaw onboard --install-daemon
+openclaw onboard
 ```
 
-The wizard installs the Gateway daemon (launchd/systemd user service) so it stays running.
+**Windows-Only Note**: This fork removes daemon service installation (launchd/systemd). Use foreground mode:
+```bash
+openclaw gateway --port 18789 --verbose
+```
+
+For background operation, use Windows Task Scheduler or run in a separate terminal.
 
 ## Quick start (TL;DR)
 
-Runtime: **Node ≥22**.
+**Runtime**: Node ≥22 (Windows 10/11).
 
 Full beginner guide (auth, pairing, channels): [Getting started](https://docs.openclaw.ai/start/getting-started)
 
 ```bash
-openclaw onboard --install-daemon
+openclaw onboard
 
 openclaw gateway --port 18789 --verbose
 
 # Send a message
 openclaw message send --to +1234567890 --message "Hello from OpenClaw"
 
-# Talk to the assistant (optionally deliver back to any connected channel: WhatsApp/Telegram/Slack/Discord/Google Chat/Signal/iMessage/BlueBubbles/Microsoft Teams/Matrix/Zalo/Zalo Personal/WebChat)
+# Talk to the assistant (optionally deliver back to any connected channel: WhatsApp/Telegram/Slack/Discord/Google Chat/Signal/Microsoft Teams/Matrix/Zalo/Zalo Personal/WebChat)
 openclaw agent --message "Ship checklist" --thinking high
 ```
 
 Upgrading? [Updating guide](https://docs.openclaw.ai/install/updating) (and run `openclaw doctor`).
 
-## Development channels
+## Development channels (Windows-Only)
 
-- **stable**: tagged releases (`vYYYY.M.D` or `vYYYY.M.D-<patch>`), npm dist-tag `latest`.
-- **beta**: prerelease tags (`vYYYY.M.D-beta.N`), npm dist-tag `beta` (macOS app may be missing).
-- **dev**: moving head of `main`, npm dist-tag `dev` (when published).
+- **stable**: tagged releases (`vYYYY.M.D` or `vYYYY.M.D-<patch>`).
+- **beta**: prerelease tags (`vYYYY.M.D-beta.N`).
+- **dev**: moving head of `main`.
 
 Switch channels (git + npm): `openclaw update --channel stable|beta|dev`.
 Details: [Development channels](https://docs.openclaw.ai/install/development-channels).
 
 ## From source (development)
 
-Prefer `pnpm` for builds from source. Bun is optional for running TypeScript directly.
+**Prefer `pnpm` for builds from source.**
 
 ```bash
-git clone https://github.com/openclaw/openclaw.git
-cd openclaw
+git clone https://github.com/edmen12/openclaw-windows.git
+cd openclaw-windows
 
 pnpm install
 pnpm ui:build # auto-installs UI deps on first run
 pnpm build
 
-pnpm openclaw onboard --install-daemon
+pnpm openclaw onboard
 
 # Dev loop (auto-reload on TS changes)
 pnpm gateway:watch
 ```
 
-Note: `pnpm openclaw ...` runs TypeScript directly (via `tsx`). `pnpm build` produces `dist/` for running via Node / the packaged `openclaw` binary.
+**Note**: `pnpm openclaw ...` runs TypeScript directly (via `tsx`). `pnpm build` produces `dist/` for running via Node / the packaged `openclaw` binary.
 
 ## Security defaults (DM access)
 
@@ -118,12 +139,12 @@ Default behavior on Telegram/WhatsApp/Signal/iMessage/Microsoft Teams/Discord/Go
 
 Run `openclaw doctor` to surface risky/misconfigured DM policies.
 
-## Highlights
+## Highlights (Windows-Only)
 
 - **[Local-first Gateway](https://docs.openclaw.ai/gateway)** — single control plane for sessions, channels, tools, and events.
-- **[Multi-channel inbox](https://docs.openclaw.ai/channels)** — WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, BlueBubbles (iMessage), iMessage (legacy), Microsoft Teams, Matrix, Zalo, Zalo Personal, WebChat, macOS, iOS/Android.
+- **[Multi-channel inbox](https://docs.openclaw.ai/channels)** — WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, BlueBubbles, Microsoft Teams, Matrix, Zalo, Zalo Personal, WebChat, Windows nodes.
 - **[Multi-agent routing](https://docs.openclaw.ai/gateway/configuration)** — route inbound channels/accounts/peers to isolated agents (workspaces + per-agent sessions).
-- **[Voice Wake](https://docs.openclaw.ai/nodes/voicewake) + [Talk Mode](https://docs.openclaw.ai/nodes/talk)** — always-on speech for macOS/iOS/Android with ElevenLabs.
+- **[Voice Wake](https://docs.openclaw.ai/nodes/voicewake) + [Talk Mode](https://docs.openclaw.ai/nodes/talk)** — always-on speech for Windows nodes.
 - **[Live Canvas](https://docs.openclaw.ai/platforms/mac/canvas)** — agent-driven visual workspace with [A2UI](https://docs.openclaw.ai/platforms/mac/canvas#canvas-a2ui).
 - **[First-class tools](https://docs.openclaw.ai/tools)** — browser, canvas, nodes, cron, sessions, and Discord/Slack actions.
 - **[Companion apps](https://docs.openclaw.ai/platforms/macos)** — macOS menu bar app + iOS/Android [nodes](https://docs.openclaw.ai/nodes).
