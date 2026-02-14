@@ -4,7 +4,7 @@
  * To integrate with bot-handlers.ts, add these handlers to the command routing logic:
  */
 
-import type { TelegramContext } from "./bot/types";
+import type { TelegramContext } from "./bot/types.js";
 import type { Message } from "@grammyjs/types";
 import {
   startOpenCodeSession,

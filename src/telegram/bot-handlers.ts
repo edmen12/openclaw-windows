@@ -4,6 +4,12 @@ import type { TelegramContext } from "./bot/types.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { hasControlCommand } from "../auto-reply/command-detection.js";
 import {
+  shouldInterceptForOpenCode,
+  handleOpencodeCommand,
+  handleOpencodeExitCommand,
+  processOpenCodeMessage,
+} from "./opencode-handlers.js";
+import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
 } from "../auto-reply/inbound-debounce.js";
@@ -725,6 +731,60 @@ export const registerTelegramHandlers = ({
       }
 
       const chatId = msg.chat.id;
+      const userId = msg.from?.id;
+      if (!userId) {
+        return;
+      }
+
+      // OpenCode session mode - intercept messages before Eden
+      const msgText = (msg.text ?? msg.caption ?? "").trim();
+      if (msgText.startsWith("/")) {
+        // /opencode_exit always exits (special case)
+        if (msgText === "/opencode_exit") {
+          const response = handleOpencodeExitCommand(chatId, userId);
+          await withTelegramApiErrorLogging({
+            operation: "sendMessage",
+            runtime,
+            fn: () => bot.api.sendMessage(chatId, response, { reply_to_message_id: msg.message_id }),
+          }).catch(() => {});
+          return;
+        }
+
+        // /opencode starts new session (even if not active)
+        if (msgText.startsWith("/opencode")) {
+          const args = msgText.slice("/opencode".length).trim();
+          const response = await handleOpencodeCommand(ctx, chatId, userId, args);
+          await withTelegramApiErrorLogging({
+            operation: "sendMessage",
+            runtime,
+            fn: () => bot.api.sendMessage(chatId, response, { reply_to_message_id: msg.message_id }),
+          }).catch(() => {});
+          return;
+        }
+
+        // During OpenCode mode, intercept ALL /commands
+        if (shouldInterceptForOpenCode(msgText, chatId, userId)) {
+          const response = await processOpenCodeMessage(chatId, userId, msgText);
+          await withTelegramApiErrorLogging({
+            operation: "sendMessage",
+            runtime,
+            fn: () => bot.api.sendMessage(chatId, response, { reply_to_message_id: msg.message_id }),
+          }).catch(() => {});
+          return;
+        }
+      }
+
+      // Non-command messages during OpenCode mode
+      if (shouldInterceptForOpenCode("", chatId, userId) && msgText) {
+        const response = await processOpenCodeMessage(chatId, userId, msgText);
+        await withTelegramApiErrorLogging({
+          operation: "sendMessage",
+          runtime,
+          fn: () => bot.api.sendMessage(chatId, response, { reply_to_message_id: msg.message_id }),
+        }).catch(() => {});
+        return;
+      }
+
       const isGroup = msg.chat.type === "group" || msg.chat.type === "supergroup";
       const messageThreadId = msg.message_thread_id;
       const isForum = msg.chat.is_forum === true;

@@ -78,25 +78,25 @@ export async function startOpenCodeSession(
   const args = workspace ? [workspace] : [];
 
   // Spawn process
-  const process = spawn(opencodeExe, args, {
+  const childProcess = spawn(opencodeExe, args, {
     stdio: ["pipe", "pipe", "pipe"],
     cwd: process.cwd(),
   });
 
   // Handle process errors
-  process.on("error", (err) => {
+  childProcess.on("error", (err: Error) => {
     console.error(`[OpenCode] Process error: ${err.message}`);
     endSession(chatId, userId);
   });
 
   // Handle process exit
-  process.on("exit", (code, signal) => {
+  childProcess.on("exit", (code: number | null, signal: NodeJS.Signals | null) => {
     console.log(`[OpenCode] Process exited: code=${code}, signal=${signal}`);
     endSession(chatId, userId);
   });
 
   // Capture stderr
-  process.stderr?.on("data", (data) => {
+  childProcess.stderr?.on("data", (data: Buffer) => {
     console.error(`[OpenCode stderr] ${data}`);
   });
 
@@ -104,7 +104,7 @@ export async function startOpenCodeSession(
   activeSessions.set(key, {
     chatId,
     userId,
-    process,
+    process: childProcess,
     startTime: Date.now(),
     workspace,
   });
@@ -136,7 +136,7 @@ export async function sendToOpenCode(
     session.process.stdout?.on("data", stdoutHandler);
 
     // Write to stdin
-    session.process.stdin?.write(`${message}\n`, (err) => {
+    session.process.stdin?.write(`${message}\n`, (err: Error | null | undefined) => {
       if (err) {
         session.process.stdout?.off("data", stdoutHandler);
         resolve({ success: false, error: err.message });
@@ -206,7 +206,7 @@ export function getSessionDebugInfo(): Array<{
 }
 
 /**
- * Cleanup all sessions (for shutdown)
+ * Clean up sessions (for shutdown)
  */
 export function cleanupAllSessions(): void {
   for (const [key, session] of activeSessions.entries()) {
@@ -217,12 +217,13 @@ export function cleanupAllSessions(): void {
 }
 
 // Handle process termination
-process.on("SIGINT", () => {
+const _process = typeof process !== "undefined" ? process : ({} as NodeJS.Process);
+_process.on("SIGINT", () => {
   cleanupAllSessions();
-  process.exit(0);
+  _process.exit(0);
 });
 
-process.on("SIGTERM", () => {
+_process.on("SIGTERM", () => {
   cleanupAllSessions();
-  process.exit(0);
+  _process.exit(0);
 });
