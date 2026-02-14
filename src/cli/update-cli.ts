@@ -60,7 +60,7 @@ import { pathExists } from "../utils.js";
 import { replaceCliName, resolveCliName } from "./cli-name.js";
 import { formatCliCommand } from "./command-format.js";
 import { installCompletion } from "./completion-cli.js";
-import { runDaemonRestart } from "./daemon-cli.js";
+// Removed for Windows-only: runDaemonRestart not available
 import { formatHelpExamples } from "./help-format.js";
 import { suppressDeprecations } from "./update-cli/suppress-deprecations.js";
 
@@ -1047,51 +1047,33 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     skipPrompt: Boolean(opts.yes),
   });
 
-  // Restart service if requested
+  // Restart service if requested (Windows-only: manual restart required)
   if (shouldRestart) {
     if (!opts.json) {
       defaultRuntime.log("");
       defaultRuntime.log(theme.heading("Restarting service..."));
     }
-    try {
-      const restarted = await runDaemonRestart();
-      if (!opts.json && restarted) {
-        defaultRuntime.log(theme.success("Daemon restarted successfully."));
-        defaultRuntime.log("");
-        process.env.OPENCLAW_UPDATE_IN_PROGRESS = "1";
-        try {
-          const interactiveDoctor = Boolean(process.stdin.isTTY) && !opts.json && opts.yes !== true;
-          await doctorCommand(defaultRuntime, {
-            nonInteractive: !interactiveDoctor,
-          });
-        } catch (err) {
-          defaultRuntime.log(theme.warn(`Doctor failed: ${String(err)}`));
-        } finally {
-          delete process.env.OPENCLAW_UPDATE_IN_PROGRESS;
-        }
-      }
-    } catch (err) {
-      if (!opts.json) {
-        defaultRuntime.log(theme.warn(`Daemon restart failed: ${String(err)}`));
-        defaultRuntime.log(
-          theme.muted(
-            `You may need to restart the service manually: ${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}`,
-          ),
-        );
-      }
+    // Windows-only: Daemon restart not available
+    // Users need to manually restart the gateway
+    if (!opts.json) {
+      defaultRuntime.log(
+        theme.warn(
+          `Automatic daemon restart not available on Windows. Please restart the gateway manually with:\n  ${replaceCliName(formatCliCommand("openclaw gateway run"), CLI_NAME)}`,
+        ),
+      );
     }
   } else if (!opts.json) {
     defaultRuntime.log("");
     if (result.mode === "npm" || result.mode === "pnpm") {
       defaultRuntime.log(
         theme.muted(
-          `Tip: Run \`${replaceCliName(formatCliCommand("openclaw doctor"), CLI_NAME)}\`, then \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
+          `Tip: Run \`${replaceCliName(formatCliCommand("openclaw doctor"), CLI_NAME)}\`, then restart the gateway manually with \`${replaceCliName(formatCliCommand("openclaw gateway run"), CLI_NAME)}\` to apply updates.`,
         ),
       );
     } else {
       defaultRuntime.log(
         theme.muted(
-          `Tip: Run \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
+          `Tip: Run \`${replaceCliName(formatCliCommand("openclaw gateway run"), CLI_NAME)}\` to apply updates to a running gateway.`,
         ),
       );
     }

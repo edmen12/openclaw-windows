@@ -4,11 +4,8 @@ import { theme } from "../../terminal/theme.js";
 import { createDefaultDeps } from "../deps.js";
 import {
   runDaemonInstall,
-  runDaemonRestart,
-  runDaemonStart,
   runDaemonStatus,
-  runDaemonStop,
-  runDaemonUninstall,
+  // Removed for Windows-only: runDaemonRestart, runDaemonStart, runDaemonStop, runDaemonUninstall
 } from "./runners.js";
 
 export function registerDaemonCli(program: Command) {
@@ -40,49 +37,9 @@ export function registerDaemonCli(program: Command) {
       });
     });
 
-  daemon
-    .command("install")
-    .description("Install the Gateway service (launchd/systemd/schtasks)")
-    .option("--port <port>", "Gateway port")
-    .option("--runtime <runtime>", "Daemon runtime (node|bun). Default: node")
-    .option("--token <token>", "Gateway token (token auth)")
-    .option("--force", "Reinstall/overwrite if already installed", false)
-    .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonInstall(opts);
-    });
-
-  daemon
-    .command("uninstall")
-    .description("Uninstall the Gateway service (launchd/systemd/schtasks)")
-    .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonUninstall(opts);
-    });
-
-  daemon
-    .command("start")
-    .description("Start the Gateway service (launchd/systemd/schtasks)")
-    .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonStart(opts);
-    });
-
-  daemon
-    .command("stop")
-    .description("Stop the Gateway service (launchd/systemd/schtasks)")
-    .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonStop(opts);
-    });
-
-  daemon
-    .command("restart")
-    .description("Restart the Gateway service (launchd/systemd/schtasks)")
-    .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonRestart(opts);
-    });
+  // Removed for Windows-only: install, uninstall, start, stop, restart commands
+  // Use: openclaw gateway run instead of install/start
+  // Use: Stop the gateway process manually (Ctrl+C or taskkill) instead of stop
 
   // Build default deps (parity with other commands).
   void createDefaultDeps();
